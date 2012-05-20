@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" 
+    android:layout_height="match_parent">
+	<RelativeLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" >
+	
+	    <TextView
+	        android:id="@+id/charView"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:gravity="center_vertical|center_horizontal"
+	        android:text="A"
+	        android:textColor="#FFFFFF"
+	        android:textSize="150sp" />
+	
+	    <TextView
+	        android:id="@+id/pinyinView"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/charView"
+	        android:layout_centerHorizontal="true"
+	        android:text="Pinyin"
+	        android:textAppearance="?android:attr/textAppearanceLarge"
+	        android:textColor="#CCAD47" />
+	
+	    <TextView
+	        android:id="@+id/descrView"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/pinyinView"
+	        android:layout_centerHorizontal="true"
+	        android:layout_margin="5sp"
+	        android:layout_marginTop="10sp"
+	        android:text="Definition definition definition definition"
+	        android:textAppearance="?android:attr/textAppearanceLarge"
+	        android:textColor="#8F8F8F" />
+	
+	</RelativeLayout>
+</ScrollView>

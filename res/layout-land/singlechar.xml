@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+	<RelativeLayout 
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content" >
+	
+	    <TextView
+	        android:id="@+id/charView"
+	        android:layout_width="wrap_content"
+	        android:layout_height="match_parent"
+	        android:layout_marginLeft="10sp"
+	        android:gravity="center_vertical|center_horizontal"
+	        android:text="A"
+	        android:textSize="150sp"
+	        android:textColor="#FFFFFF" />
+	
+	    <LinearLayout
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerVertical="true"
+	        android:layout_marginLeft="30dp"
+	        android:layout_toRightOf="@+id/charView"
+	        android:orientation="vertical" >
+	
+	        <TextView
+	            android:id="@+id/pinyinView"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="Pinyin"
+	            android:layout_margin="10sp"
+	            android:textAppearance="?android:attr/textAppearanceLarge"
+	            android:textColor="#CCAD47" />
+	
+	        <TextView
+	            android:id="@+id/descrView"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_margin="10sp"
+	            android:scrollHorizontally="false"
+	            android:text="Definition Definition Definition Definition"
+	            android:textAppearance="?android:attr/textAppearanceLarge"
+	            android:textColor="#808080" />
+	    </LinearLayout>
+	
+	</RelativeLayout>
+</HorizontalScrollView>
