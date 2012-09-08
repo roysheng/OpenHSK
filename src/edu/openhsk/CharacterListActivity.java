@@ -20,15 +20,15 @@ import android.widget.Toast;
 
 public class CharacterListActivity extends Activity {
 	private static final String LOG_TAG = "CharacterListActivity";
-	final String[] queryColumns = new String[] {"_id", "word", "pinyin", "definition", "islearned"};
-	
+	private static final String[] queryColumns = new String[] {"_id", "word", "pinyin", "definition", "islearned"};
+
 	private DatabaseHelper dbhelp;
 	private SQLiteDatabase db;
-	private ListView lv;
+	private ListView listView;
 	private CharacterListViewBinder viewBinder;
 	private SimpleCursorAdapter adapter;
 	private Cursor cursor;
-	private SoundManager sm;
+	private SoundManager soundManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,26 +38,26 @@ public class CharacterListActivity extends Activity {
 		dbhelp = new DatabaseHelper(this);
 		db = dbhelp.getReadableDatabase();
 		
-		lv = (ListView) findViewById(R.id.charListView);
+		listView = (ListView) findViewById(R.id.charListView);
 		cursor = db.query("t_hsk1", queryColumns, "", null, "", "", "");
 		refreshList(cursor);
 		
-		sm = new SoundManager(getAssets());
-		lv.setOnItemClickListener(new PlaySoundButton());
+		soundManager = new SoundManager(getAssets(), dbhelp);
+		listView.setOnItemClickListener(new PlaySoundButton());
 		
 		startManagingCursor(cursor);
 	}
 
 	private void refreshList(Cursor cursor) {
 		if (cursor.getCount() <= 0) {
-			lv.setVisibility(View.GONE);
+			listView.setVisibility(View.GONE);
 			new TextView(this).setText("No characters found...");
 		} else {
 			String[] from = new String[] {"word", "pinyin", "definition", "islearned"};
 			int[] to = new int[] {R.id.charListView, R.id.pinyinListView, R.id.defListView};
 			adapter = new SimpleCursorAdapter(this, R.layout.list_item, cursor, from, to);
 			adapter.setViewBinder(viewBinder);
-			lv.setAdapter(adapter);
+			listView.setAdapter(adapter);
 		}
 	}
 	
@@ -66,7 +66,7 @@ public class CharacterListActivity extends Activity {
 		dbhelp = new DatabaseHelper(this);
 		db = dbhelp.getReadableDatabase();
 		
-		lv = (ListView) findViewById(R.id.charListView);
+		listView = (ListView) findViewById(R.id.charListView);
 		cursor = db.query("t_hsk1", queryColumns, "", null, "", "", "");
 		refreshList(cursor);
 		
@@ -100,8 +100,6 @@ public class CharacterListActivity extends Activity {
 				String fileName = cursor.getString(1);
 				Toast.makeText(CharacterListActivity.this, fileName, Toast.LENGTH_SHORT).show();
 				Log.d(LOG_TAG, "id: " + pos + " String: " + string + " file: " + fileName);
-				//TODO: play sounds in another thread
-				//sm.playSoundFileByName(fileName);
 				AsyncTask asyncPlayer = new AsyncSoundPlayer(fileName);
 				asyncPlayer.execute(null);
 			}
@@ -109,13 +107,12 @@ public class CharacterListActivity extends Activity {
 	}
 	
 	private class AsyncSoundPlayer extends AsyncTask<Object,Integer,Boolean> {
-
 		private final String fileName;
-
+		
 		public AsyncSoundPlayer(String fileName) {
 			this.fileName = fileName;
 		}
-
+		
 		@Override
 		protected void onPreExecute() {
 			//super.onPreExecute();
@@ -124,7 +121,7 @@ public class CharacterListActivity extends Activity {
 		
 		@Override
 		protected Boolean doInBackground(Object... params) {
-			sm.playSoundFileByName(fileName);
+			soundManager.playSoundFileByName(fileName);
 			return true;
 		}
 		

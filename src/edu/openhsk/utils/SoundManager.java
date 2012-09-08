@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
@@ -12,41 +14,73 @@ import android.util.Log;
 
 public class SoundManager {
 	protected static final String LOG_TAG = "SoundManager";
-	private AssetManager assetManager;
-	private String filePath = "hsk1_sounds/";
-	private SoundPool sp;
-	private HashMap<Integer, Integer> soundMap = new HashMap<Integer, Integer>();
+	private static final String FILEPATH = "hsk1_sounds/";
 
-	public SoundManager(AssetManager assetManager) {
-		this.assetManager = assetManager;
-		sp = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
-		sp.setOnLoadCompleteListener(new OnLoadCompleteListener() {
+	//SoundPool playback constants
+	private static final int STREAM_ERROR = 0;
+	private static final float RATE = 1f;
+	private static final int LOOP = 0;
+	private static final int PRIORITY = 1;
+	private static final float RIGHT_VOLUME = 1f;
+	private static final float LEFT_VOLUME = 1f;
+
+	private SoundPool soundPool;
+	
+	/** This hashmap maps soundfiles to soundId's. */
+	private HashMap<String, Integer> soundMap;
+
+	public SoundManager(AssetManager assetManager, DatabaseHelper dbh) {
+		soundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
+		soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
 			@Override
 			public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-				Log.d(LOG_TAG, "Sound loaded");
+				Log.d(LOG_TAG, "Sounds loaded");
 			}
 		});
 		
+		soundMap = new HashMap<String, Integer>();
+		
 		AssetFileDescriptor afd;
-		try {
-			afd = assetManager.openFd(filePath  + "chi-2d9d12c4.ogg");
-			int soundID = sp.load(afd, 1);
-			soundMap.put(1, soundID);
+		try { //TODO släng ut allt och byt till lazy loading
+			if (soundMap.isEmpty()) {
+				SQLiteDatabase db = dbh.getReadableDatabase();
+				Cursor cursor = db.query("t_hsk1", new String[] {"_id", "soundfile"}, null, null, null, null, null);
+				if (cursor.moveToFirst()) {
+					int count = cursor.getCount();
+					if (count <= 0) {
+						throw new IOException("No content in database");
+					}
+					while (!cursor.isAfterLast()) {
+						String filename = cursor.getString(cursor.getColumnIndex("soundfile"));
+						afd = assetManager.openFd(FILEPATH  + filename);
+						int soundId = soundPool.load(afd, PRIORITY);
+						if (soundId != 0) {
+							soundMap.put(filename, soundId);
+						} else {
+							Log.e(LOG_TAG, "Error loading file " + filename + " into soundpool");
+						}
+						cursor.moveToNext();
+					}
+				}
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void playSoundFileByName(String fileName) {
-		if ("chi-2d9d12c4.ogg".equals(fileName) == false) {
-			Log.d(LOG_TAG, "Wrong file: " + filePath + fileName);
-			return;
-		}
+	public void playSoundFileByName(String filename) {
+//		if ("chi-2d9d12c4.ogg".equals(fileName) == false) {
+//			Log.e(LOG_TAG, "Wrong file: " + FILEPATH + fileName);
+//			return;
+//		}
 		try {
-			if (sp.play(soundMap.get(1), 1f, 1f, 1, 0, 1f) == 0) {
-				throw new Exception();
+			Integer soundID = soundMap.get(filename);
+			if (soundID != 0) {
+				if (soundPool.play(soundID, LEFT_VOLUME, RIGHT_VOLUME, PRIORITY, LOOP, RATE) == STREAM_ERROR) {
+					throw new Exception("Playback error for file " + filename + " with soundId " + soundID);
+				}
 			}
-			Log.d(LOG_TAG, "Played file: " + filePath + fileName);
+			Log.d(LOG_TAG, "Played file: " + FILEPATH + filename);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
