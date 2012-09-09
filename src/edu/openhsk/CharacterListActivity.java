@@ -87,7 +87,6 @@ public class CharacterListActivity extends Activity {
 	}
 	
 	private class PlaySoundButton implements OnItemClickListener {
-		@Override
 		public void onItemClick(AdapterView<?> av, View view, int pos,
 				long id) {
 			//query db for sound filepath

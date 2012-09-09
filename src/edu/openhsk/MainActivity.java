@@ -35,7 +35,6 @@ public class MainActivity extends Activity {
         
         Button b1 = (Button) findViewById(R.id.button1);
         b1.setOnClickListener(new OnClickListener() {
-			@Override
 			public void onClick(View v) {
 				Intent i = new Intent(MainActivity.this, CharacterViewActivity.class);
 				Random rand = new Random();
@@ -44,8 +43,7 @@ public class MainActivity extends Activity {
 			}
 		});
         b1.setOnLongClickListener(new OnLongClickListener() {
-			@Override //XXX DEBUG ONLY
-			public boolean onLongClick(View v) {
+			public boolean onLongClick(View v) { //XXX DEBUG ONLY
 				Intent i = new Intent(MainActivity.this, CharacterViewActivity.class);
 				i.putExtra("edu.openhsk.randomindex", 65);
 				startActivity(i);
@@ -55,7 +53,6 @@ public class MainActivity extends Activity {
         
         Button b2 = (Button) findViewById(R.id.button2);
         b2.setOnClickListener(new OnClickListener() {
-			@Override
 			public void onClick(View v) {
 				Intent i = new Intent(MainActivity.this, CharacterListActivity.class);
 				startActivity(i);
@@ -64,7 +61,6 @@ public class MainActivity extends Activity {
         
         Button b3 = (Button) findViewById(R.id.button3);
         b3.setOnClickListener(new OnClickListener() {
-			@Override
 			public void onClick(View v) {
 				Intent i = new Intent(MainActivity.this, QuizActivity.class);
 				startActivity(i);

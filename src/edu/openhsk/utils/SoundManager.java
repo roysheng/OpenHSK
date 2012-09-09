@@ -34,7 +34,6 @@ public class SoundManager {
 		this.assetManager = assetManager;
 		soundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
 		soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-			@Override
 			public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
 				if (status == 0 && sampleId != 0) {
 					if (soundPool.play(sampleId, LEFT_VOLUME, 

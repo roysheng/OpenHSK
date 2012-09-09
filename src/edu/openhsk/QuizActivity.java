@@ -93,7 +93,6 @@ public class QuizActivity extends Activity {
 			this.id = id;
 		}
 		
-		@Override
 		public void onClick(View view) {
 			if (id == idOfAnswer) { //correct answer
 				new AsyncColorSwitcher((Button) view, Color.GREEN).execute((Object[])null);

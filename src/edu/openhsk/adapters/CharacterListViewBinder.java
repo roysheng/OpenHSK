@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 public class CharacterListViewBinder implements SimpleCursorAdapter.ViewBinder {
 
-	@Override
 	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 		//columnIndex == 0 is the mandatory _id for the SQLite table.
 		if (columnIndex == 1) { //word
