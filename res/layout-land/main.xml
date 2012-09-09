@@ -19,26 +19,55 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true" >
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/character_list_str" />
-
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/character_viewer_str" />
-
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/quiz_str" />
-
+        android:layout_centerVertical="true"
+        android:orientation="vertical" >
+    
+	    <LinearLayout
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1.0" >
+	
+	        <Button
+	            android:id="@+id/button2"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:text="@string/character_list_str"
+	            android:layout_centerHorizontal="true"
+	            android:layout_weight="1.0" />
+	
+	        <Button
+	            android:id="@+id/button1"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:text="@string/character_viewer_str"
+	            android:layout_centerHorizontal="true"
+	            android:layout_weight="1.0" />
+	
+	    </LinearLayout>
+	    
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1.0" >
+	
+	        <Button
+	            android:id="@+id/button3"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_centerHorizontal="true"
+	            android:layout_weight="1.0"
+	            android:text="@string/quiz_str" />
+
+	        <Button
+	            android:id="@+id/button4"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_centerHorizontal="true"
+	            android:layout_weight="1.0"
+	            android:text="@string/options_str" />
+	        
+	    </LinearLayout>
+    
     </LinearLayout>
 
 </RelativeLayout>

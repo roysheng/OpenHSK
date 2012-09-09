@@ -7,13 +7,16 @@ import java.io.InputStreamReader;
 import java.util.Random;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import edu.openhsk.utils.CharacterDAO;
 import edu.openhsk.utils.CustomHanziParser;
@@ -28,7 +31,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main);
         
         //parse hanzi data
-        parseOrFail();
+        new AsyncParser().execute((Object[])null);
         
         //display list of characters (no menu in future versions?)
         //displayList();
@@ -68,7 +71,7 @@ public class MainActivity extends Activity {
 		});
     }
 
-	private void parseOrFail() { //TODO: break out into asynctask
+	private void parseOrFail() {
 		try {
 			DatabaseHelper dbh = new DatabaseHelper(this);
 			CharacterDAO dao = new CharacterDAO(dbh);
@@ -86,5 +89,37 @@ public class MainActivity extends Activity {
 			Toast.makeText(this, "Fatal parser error", Toast.LENGTH_LONG);
 			e.printStackTrace();
 		}
+	}
+	
+	private class AsyncParser extends AsyncTask<Object,Integer,Boolean> {
+		private ProgressDialog dialog;
+		
+		public AsyncParser() {
+			dialog = new ProgressDialog(MainActivity.this);
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			this.dialog.setMessage("Installing dictionaries, do not interrupt...");
+			this.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			this.dialog.show();
+		}
+		
+		@Override
+		protected Boolean doInBackground(Object... params) {
+			parseOrFail();
+			return true;
+		}
+		
+		@Override
+		protected void onPostExecute(Boolean result) {
+			if (dialog.isShowing()) {
+	            dialog.dismiss();
+	        }
+			
+			LinearLayout foreground = (LinearLayout) findViewById(R.id.main_menu_layout);
+			foreground.setVisibility(View.VISIBLE);
+		}
+		
 	}
 }

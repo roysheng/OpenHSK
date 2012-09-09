@@ -4,10 +4,11 @@
     <string name="hello">Hello World, MainActivity!</string>
     <string name="app_name">OpenHSK</string>
     <string name="filename_hsk1">HSK_Level_1_(New_HSK).csv</string>
-    <string name="character_viewer_str">Random character</string>
-    <string name="character_list_str">Character list</string>
+    <string name="character_viewer_str">Random word</string>
+    <string name="character_list_str">Word list</string>
     <string name="quiz_str">Quiz</string>
     <string name="enable_pinyin_str">Toggle pinyin</string>
     <string name="show_correct_answer_str">Show correct answer</string>
+    <string name="options_str">Options</string>
 
 </resources>
