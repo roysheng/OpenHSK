@@ -1,86 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-    <RelativeLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_marginLeft="10sp" >
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
+    <RelativeLayout
+        android:id="@+id/quizLayoutTop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:id="@+id/quizWordLayout"
+            android:layout_width="match_parent"
+        	android:layout_height="wrap_content">
+        
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/quizWordView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp"
             android:clickable="true"
             android:gravity="center_vertical|center_horizontal"
-            android:text="A"
+            android:text="Word"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="35sp" />
+            android:textColor="#FFFFFF"
+            android:textSize="35sp"
+            android:layout_marginLeft="5sp" />
+        
+        <TextView
+	            android:id="@+id/pinyinLabel"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="Pinyin here"
+	            android:textAppearance="?android:attr/textAppearanceMedium"
+	            android:textColor="#CCAD47"
+	            android:layout_marginLeft="5sp"
+	            android:visibility="gone" />
+        
+        </LinearLayout>
 
         <ProgressBar
             android:id="@+id/progressBar1"
-            android:layout_width="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="40dp" />
-
+            android:layout_below="@id/quizWordLayout" />
     </RelativeLayout>
-
+
     <LinearLayout
+        android:id="@+id/quizLayoutBottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/textView2"
+        <LinearLayout
+            android:id="@+id/quizSubLayoutUpperBottom"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Alternative 1"
-            android:textColor="#808080"
-            android:clickable="true"
-            android:gravity="center_vertical|center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:layout_weight="1" >
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Alternative 2"
-            android:textColor="#808080"
-            android:clickable="true"
-            android:gravity="center_vertical|center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            <Button
+                android:id="@+id/defView0"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/btn_recolored"
+                android:clickable="true"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="Definition 0"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#000000" />
 
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Alternative 3"
-            android:textColor="#808080"
-            android:clickable="true"
-            android:gravity="center_vertical|center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            <Button
+                android:id="@+id/defView1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/btn_recolored"
+                android:clickable="true"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="Definition 1"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#000000" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView5"
+        <LinearLayout
+            android:id="@+id/quizSubLayoutLowerBottom"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Alternative 4"
-            android:textColor="#808080"
-            android:clickable="true"
-            android:gravity="center_vertical|center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:layout_weight="1" >
+
+            <Button
+                android:id="@+id/defView2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/btn_recolored"
+                android:clickable="true"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="Definition 2"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#000000" />
+
+            <Button
+                android:id="@+id/defView3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/btn_recolored"
+                android:clickable="true"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="Definition 3"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#000000" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

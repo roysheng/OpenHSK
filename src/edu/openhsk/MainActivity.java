@@ -61,6 +61,15 @@ public class MainActivity extends Activity {
 				startActivity(i);
 			}
 		});
+        
+        Button b3 = (Button) findViewById(R.id.button3);
+        b3.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(MainActivity.this, QuizActivity.class);
+				startActivity(i);
+			}
+		});
     }
 
 	private void parseOrFail() { //TODO: break out into asynctask
@@ -76,7 +85,7 @@ public class MainActivity extends Activity {
         			R.string.filename_hsk1));
         	BufferedReader br = new BufferedReader(new InputStreamReader(
         			inputStream, "UTF8"));
-			parser.parseCSV(br);
+			parser.parseHSK1CSV(br);
 		} catch (IOException e) {
 			Toast.makeText(this, "Fatal parser error", Toast.LENGTH_LONG);
 			e.printStackTrace();

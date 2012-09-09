@@ -7,5 +7,7 @@
     <string name="character_viewer_str">Random character</string>
     <string name="character_list_str">Character list</string>
     <string name="quiz_str">Quiz</string>
+    <string name="enable_pinyin_str">Toggle pinyin</string>
+    <string name="show_correct_answer_str">Show correct answer</string>
 
 </resources>

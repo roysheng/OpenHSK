@@ -42,7 +42,7 @@ public class CharacterListActivity extends Activity {
 		cursor = db.query("t_hsk1", queryColumns, "", null, "", "", "");
 		refreshList(cursor);
 		
-		soundManager = new SoundManager(getAssets(), dbhelp);
+		soundManager = new SoundManager(getAssets());
 		listView.setOnItemClickListener(new PlaySoundButton());
 		
 		startManagingCursor(cursor);
@@ -121,7 +121,7 @@ public class CharacterListActivity extends Activity {
 		
 		@Override
 		protected Boolean doInBackground(Object... params) {
-			soundManager.playSoundFileByName(fileName);
+			soundManager.playSoundFile(fileName);
 			return true;
 		}
 		
