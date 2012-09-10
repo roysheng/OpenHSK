@@ -24,14 +24,22 @@ import edu.openhsk.utils.DatabaseHelper;
 
 public class MainActivity extends Activity {
     private static final String LOG_TAG = "MainActivity";
+	private DatabaseHelper dbh;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        //parse hanzi data
-        new AsyncParser().execute((Object[])null);
+        dbh = new DatabaseHelper(this);
+        CharacterDAO dao = new CharacterDAO(dbh);
+		if (dao.getTableStatus() == true) {
+			Log.d(LOG_TAG, "No data needed to be loaded");
+			LinearLayout foreground = (LinearLayout) findViewById(R.id.main_menu_layout);
+			foreground.setVisibility(View.VISIBLE);
+		} else {
+			new AsyncParser().execute((Object[])null);
+		}
         
         //display list of characters (no menu in future versions?)
         //displayList();
@@ -73,12 +81,7 @@ public class MainActivity extends Activity {
 
 	private void parseOrFail() {
 		try {
-			DatabaseHelper dbh = new DatabaseHelper(this);
 			CharacterDAO dao = new CharacterDAO(dbh);
-			if (dao.getTableStatus() == true) {
-				Log.d(LOG_TAG, "No data needed to be loaded");
-				return;
-			}
         	CustomHanziParser parser = new CustomHanziParser(dao);
         	InputStream inputStream = this.getAssets().open(getString(
         			R.string.filename_hsk1));
@@ -86,7 +89,7 @@ public class MainActivity extends Activity {
         			inputStream, "UTF8"));
 			parser.parseHSK1CSV(br);
 		} catch (IOException e) {
-			Toast.makeText(this, "Fatal parser error", Toast.LENGTH_LONG);
+			Toast.makeText(this, "Fatal parser error", Toast.LENGTH_LONG).show();
 			e.printStackTrace();
 		}
 	}

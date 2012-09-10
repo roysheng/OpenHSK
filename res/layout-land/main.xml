@@ -16,6 +16,7 @@
         android:textSize="45sp" />
 
     <LinearLayout
+        android:id="@+id/main_menu_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -32,7 +33,6 @@
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:text="@string/character_list_str"
-	            android:layout_centerHorizontal="true"
 	            android:layout_weight="1.0" />
 	
 	        <Button
@@ -40,7 +40,6 @@
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:text="@string/character_viewer_str"
-	            android:layout_centerHorizontal="true"
 	            android:layout_weight="1.0" />
 	
 	    </LinearLayout>
@@ -54,7 +53,6 @@
 	            android:id="@+id/button3"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
-	            android:layout_centerHorizontal="true"
 	            android:layout_weight="1.0"
 	            android:text="@string/quiz_str" />
 
@@ -62,9 +60,9 @@
 	            android:id="@+id/button4"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
-	            android:layout_centerHorizontal="true"
 	            android:layout_weight="1.0"
-	            android:text="@string/options_str" />
+	            android:text="@string/options_str"
+	            android:visibility="invisible" />
 	        
 	    </LinearLayout>
     
