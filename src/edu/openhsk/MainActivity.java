@@ -9,6 +9,8 @@ import java.util.Random;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -65,6 +67,13 @@ public class MainActivity extends Activity {
         Button b2 = (Button) findViewById(R.id.button2);
         b2.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				//reset saved list position
+				SharedPreferences prefs = getPreferences(MODE_WORLD_WRITEABLE);
+				Editor edit = prefs.edit();
+				edit.putInt("listPos", 0);
+				edit.putInt("lengthFromTop", 0);
+				edit.commit();
+				
 				Intent i = new Intent(MainActivity.this, CharacterListActivity.class);
 				startActivity(i);
 			}

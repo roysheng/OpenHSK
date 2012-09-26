@@ -5,6 +5,8 @@ import edu.openhsk.adapters.CharacterListViewBinder;
 import edu.openhsk.utils.DatabaseHelper;
 import edu.openhsk.utils.SoundManager;
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -16,7 +18,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class CharacterListActivity extends Activity {
 	private static final String LOG_TAG = "CharacterListActivity";
@@ -44,6 +45,7 @@ public class CharacterListActivity extends Activity {
 		
 		soundManager = new SoundManager(getAssets());
 		listView.setOnItemClickListener(new PlaySoundButton());
+		listView.setFastScrollEnabled(true);
 		
 		startManagingCursor(cursor);
 	}
@@ -72,11 +74,30 @@ public class CharacterListActivity extends Activity {
 		
 		startManagingCursor(cursor);
 		
+		SharedPreferences prefs = getPreferences(MODE_WORLD_WRITEABLE);
+		int listPos = prefs.getInt("listPos", 0);
+		int lengthFromTop = prefs.getInt("lengthFromTop", 0);
+		listView.setSelectionFromTop(listPos, lengthFromTop);
+		if (listPos != 0) {
+			Log.d(LOG_TAG, "Restoring list position to index " + listPos);
+		}
+		
 		super.onResume();
 	}
 	
 	@Override
 	protected void onPause() {
+		if (listView != null) {
+			int position = listView.getFirstVisiblePosition();
+			View v = listView.getChildAt(0);
+			int lengthFromTop = (v == null) ? 0 : v.getTop();
+			SharedPreferences prefs = getPreferences(MODE_WORLD_WRITEABLE);
+			Editor edit = prefs.edit();
+			edit.putInt("listPos", position);
+			edit.putInt("lengthFromTop", lengthFromTop);
+			edit.commit();
+		}
+		
 		super.onPause();
 	}
 	
@@ -87,8 +108,7 @@ public class CharacterListActivity extends Activity {
 	}
 	
 	private class PlaySoundButton implements OnItemClickListener {
-		public void onItemClick(AdapterView<?> av, View view, int pos,
-				long id) {
+		public void onItemClick(AdapterView<?> av, View view, int pos, long id) {
 			//query db for sound filepath
 			TextView tv = (TextView) view.findViewById(R.id.charListView);
 			String string = tv.getText().toString();
@@ -97,9 +117,8 @@ public class CharacterListActivity extends Activity {
 			//play sound from file
 			if (cursor.moveToFirst()) {
 				String fileName = cursor.getString(1);
-				Toast.makeText(CharacterListActivity.this, fileName, Toast.LENGTH_SHORT).show();
 				Log.d(LOG_TAG, "id: " + pos + " String: " + string + " file: " + fileName);
-				AsyncTask asyncPlayer = new AsyncSoundPlayer(fileName);
+				AsyncTask<?,?,?> asyncPlayer = new AsyncSoundPlayer(fileName);
 				asyncPlayer.execute(null);
 			}
 		}
