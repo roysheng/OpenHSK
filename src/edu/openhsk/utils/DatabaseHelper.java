@@ -13,16 +13,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public static final String T_HSK1 = "t_hsk1";
 	/** Table for cached quizzes. */
 	public static final String T_CACHE = "t_cache";
-
+	
 	public DatabaseHelper(Context context, String name, CursorFactory factory,
 			int version) {
 		super(context, DBNAME, null, DBVERSION);
 	}
-
+	
 	public DatabaseHelper(Context context) {
 		this(context, "", null, 0);
 	}
-
+	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		//remember to update these statements to 

@@ -207,6 +207,7 @@ public class QuizActivity extends Activity {
 	            }
 	            return true;
 	        case R.id.enable_pinyin:
+	        	//TODO lagra i sharedpref's
 	            if (pinyinShown) {
 	            	pinyinShown = false;
 	            	quizPinyinView.setVisibility(View.GONE);

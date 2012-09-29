@@ -68,10 +68,9 @@ public class MainActivity extends Activity {
         listButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				//reset saved list position
-				SharedPreferences prefs = getPreferences(MODE_WORLD_WRITEABLE);
-				Editor edit = prefs.edit();
-				edit.putInt("listPos", 0);
-				edit.putInt("lengthFromTop", 0);
+				Editor edit = getSharedPreferences(CharacterListActivity.PREFS_NAME, MODE_WORLD_WRITEABLE).edit();
+				edit.putInt(CharacterListActivity.LIST_POS, 0);
+				edit.putInt(CharacterListActivity.LENGTH_FROM_TOP, 0);
 				edit.commit();
 				
 				Intent i = new Intent(MainActivity.this, CharacterListActivity.class);
@@ -82,6 +81,7 @@ public class MainActivity extends Activity {
         Button quizButton = (Button) findViewById(R.id.button3);
         quizButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				//reset quiz cache
 				Editor editor = getSharedPreferences(QuizActivity.PREFS_NAME, MODE_WORLD_WRITEABLE).edit();
 				editor.putBoolean(QuizActivity.IS_CACHED, false);
 				editor.commit();

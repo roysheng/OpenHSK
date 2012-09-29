@@ -41,9 +41,9 @@ public class SoundManager {
 								RATE) == STREAM_ERROR) {
 						Log.e(LOG_TAG, "Playback error for file with " +
 								"soundId " + sampleId);
-					} else {
-						Log.d(LOG_TAG, "Played soundfile ??? with id " + sampleId);
 					}
+				} else {
+					Log.e(LOG_TAG, "Soundpool error, status code: " + status);
 				}
 			}
 		});
