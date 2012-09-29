@@ -22,7 +22,8 @@ import android.widget.TextView;
 public class CharacterListActivity extends Activity {
 	private static final String LOG_TAG = "CharacterListActivity";
 	private static final String[] queryColumns = new String[] {"_id", "word", "pinyin", "definition", "islearned"};
-
+	public static final String PREFS_NAME = "edu.openhsk.list.prefs";
+	
 	private DatabaseHelper dbhelp;
 	private SQLiteDatabase db;
 	private ListView listView;
@@ -74,7 +75,7 @@ public class CharacterListActivity extends Activity {
 		
 		startManagingCursor(cursor);
 		
-		SharedPreferences prefs = getPreferences(MODE_WORLD_WRITEABLE);
+		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_WORLD_WRITEABLE);
 		int listPos = prefs.getInt("listPos", 0);
 		int lengthFromTop = prefs.getInt("lengthFromTop", 0);
 		listView.setSelectionFromTop(listPos, lengthFromTop);
@@ -91,7 +92,7 @@ public class CharacterListActivity extends Activity {
 			int position = listView.getFirstVisiblePosition();
 			View v = listView.getChildAt(0);
 			int lengthFromTop = (v == null) ? 0 : v.getTop();
-			SharedPreferences prefs = getPreferences(MODE_WORLD_WRITEABLE);
+			SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_WORLD_WRITEABLE);
 			Editor edit = prefs.edit();
 			edit.putInt("listPos", position);
 			edit.putInt("lengthFromTop", lengthFromTop);
@@ -110,6 +111,7 @@ public class CharacterListActivity extends Activity {
 	private class PlaySoundButton implements OnItemClickListener {
 		public void onItemClick(AdapterView<?> av, View view, int pos, long id) {
 			//query db for sound filepath
+			//TODO query from helper class instead of here
 			TextView tv = (TextView) view.findViewById(R.id.charListView);
 			String string = tv.getText().toString();
 			Cursor cursor = db.query("t_hsk1", new String[] {"_id","soundfile"}, "word = ?", new String[] {string}, null, null, null);
@@ -121,12 +123,14 @@ public class CharacterListActivity extends Activity {
 				AsyncTask<?,?,?> asyncPlayer = new AsyncSoundPlayer(fileName);
 				asyncPlayer.execute(null);
 			}
+			
+			startManagingCursor(cursor);
 		}
 	}
 	
 	private class AsyncSoundPlayer extends AsyncTask<Object,Integer,Boolean> {
 		private final String fileName;
-		
+		//TODO refactor sound player
 		public AsyncSoundPlayer(String fileName) {
 			this.fileName = fileName;
 		}

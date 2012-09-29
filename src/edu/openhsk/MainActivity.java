@@ -46,8 +46,8 @@ public class MainActivity extends Activity {
         //display list of characters (no menu in future versions?)
         //displayList();
         
-        Button b1 = (Button) findViewById(R.id.button1);
-        b1.setOnClickListener(new OnClickListener() {
+        Button charButton = (Button) findViewById(R.id.button1);
+        charButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				Intent i = new Intent(MainActivity.this, CharacterViewActivity.class);
 				Random rand = new Random();
@@ -55,7 +55,7 @@ public class MainActivity extends Activity {
 				startActivity(i);
 			}
 		});
-        b1.setOnLongClickListener(new OnLongClickListener() {
+        charButton.setOnLongClickListener(new OnLongClickListener() {
 			public boolean onLongClick(View v) { //XXX DEBUG ONLY
 				Intent i = new Intent(MainActivity.this, CharacterViewActivity.class);
 				i.putExtra("edu.openhsk.randomindex", 65);
@@ -64,8 +64,8 @@ public class MainActivity extends Activity {
 			}
 		});
         
-        Button b2 = (Button) findViewById(R.id.button2);
-        b2.setOnClickListener(new OnClickListener() {
+        Button listButton = (Button) findViewById(R.id.button2);
+        listButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				//reset saved list position
 				SharedPreferences prefs = getPreferences(MODE_WORLD_WRITEABLE);
@@ -79,9 +79,13 @@ public class MainActivity extends Activity {
 			}
 		});
         
-        Button b3 = (Button) findViewById(R.id.button3);
-        b3.setOnClickListener(new OnClickListener() {
+        Button quizButton = (Button) findViewById(R.id.button3);
+        quizButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				Editor editor = getSharedPreferences(QuizActivity.PREFS_NAME, MODE_WORLD_WRITEABLE).edit();
+				editor.putBoolean(QuizActivity.IS_CACHED, false);
+				editor.commit();
+				
 				Intent i = new Intent(MainActivity.this, QuizActivity.class);
 				startActivity(i);
 			}

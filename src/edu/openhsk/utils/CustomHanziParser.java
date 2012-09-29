@@ -80,7 +80,7 @@ public class CustomHanziParser {
 		}
 	}
 	
-	public void parseHSK2CSV(BufferedReader br) { //TODO finish parser
+	public void parseHSK2CSV(BufferedReader br) { //TODO finish and test parser
 		try {
 			int lineNumber = 1;
 			while (true) {

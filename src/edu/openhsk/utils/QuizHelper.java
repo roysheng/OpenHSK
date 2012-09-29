@@ -5,20 +5,26 @@ import java.util.List;
 import java.util.Random;
 
 import edu.openhsk.data.QuizHanzi;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import static edu.openhsk.utils.DatabaseHelper.T_CACHE;
+import static edu.openhsk.utils.DatabaseHelper.T_HSK1;
+
 public class QuizHelper {
 	private static final String LOG_TAG = "QuizHelper";
 	private final Context context;
-
+	
 	public QuizHelper(Context context) {
 		this.context = context;
 	}
-
-	public List<QuizHanzi> makeQuizList() {
+	
+	public List<QuizHanzi> makeQuizList(boolean quizIsCached) {
 		List<QuizHanzi> list = null;
 		
 		DatabaseHelper dbh = null;
@@ -28,7 +34,13 @@ public class QuizHelper {
 			db = dbh.getReadableDatabase();
 			
 			String[] columns = new String[] {"_id", "word", "pinyin", "definition", "soundfile"};
-			Cursor cursor = db.query("t_hsk1", columns, null, null, null, null, "RANDOM() LIMIT 4");
+			Cursor cursor;
+			if (quizIsCached) {
+//				cursor = db.rawQuery("SELECT * FROM wordsTable WHERE _id IN (SELECT word_id FROM savedQuizTable)", null);
+				cursor = db.query(T_HSK1, columns, "_id IN (SELECT word_id FROM " + T_CACHE + ")", null, null, null, null);
+			} else {
+				cursor = db.query(T_HSK1, columns, null, null, null, null, "RANDOM() LIMIT 4");
+			}
 			
 			if (cursor != null && cursor.getCount() == 4) {
 				if (cursor.moveToFirst()) {
@@ -62,7 +74,7 @@ public class QuizHelper {
 		
 		return list;
 	}
-
+	
 	public int chooseCorrectAnswer(List<QuizHanzi> quizWordList) {
 		//randomizes index and answer
 		int randInt = -1;
@@ -73,12 +85,61 @@ public class QuizHelper {
 		return idOfAnswer;
 	}
 	
-	public void saveQuizAndAnswer() {
-		
+	private void saveQuiz(int[] hanziIds) {
+		DatabaseHelper dbh = null;
+		SQLiteDatabase db = null;
+		try {
+			dbh = new DatabaseHelper(context);
+			db = dbh.getReadableDatabase();
+			
+			Cursor cursor = db.query(T_CACHE, new String[] {"_id"}, null, null, null, null, null);
+			int count = cursor.getCount();
+			if (count > 0) {
+				db.delete(T_CACHE, null, null);
+			}
+			
+			ContentValues values = new ContentValues(1);
+			for (int i = 0; i < hanziIds.length; i++) {
+				values.put("word_id", hanziIds[i]);
+				db.insert(T_CACHE, null, values);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (db != null) db.close();
+			if (dbh != null) dbh.close();
+		}
 	}
 	
-	public void getSavedQuiz() {
-		
+	public void invalidateCache() {
+		DatabaseHelper dbh = null;
+		SQLiteDatabase db = null;
+		try {
+			dbh = new DatabaseHelper(context);
+			db = dbh.getReadableDatabase();
+			
+			Cursor cursor = db.query(T_CACHE, new String[] {"_id"}, 
+					null, null, null, null, null);
+			int count = cursor.getCount();
+			if (count > 0) {
+				db.delete(T_CACHE, null, null);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (db != null) db.close();
+			if (dbh != null) dbh.close();
+		}
+	}
+
+	public void cacheQuiz(List<QuizHanzi> quizWordList) {
+		int[] hanziIds = { 
+			quizWordList.get(0).getId(),
+			quizWordList.get(1).getId(), 
+			quizWordList.get(2).getId(),
+			quizWordList.get(3).getId(), 
+		};
+		saveQuiz(hanziIds);
 	}
 
 }
