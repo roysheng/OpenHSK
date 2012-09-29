@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import edu.openhsk.data.QuizHanzi;
 import edu.openhsk.utils.QuizHelper;
 
@@ -33,9 +32,10 @@ public class QuizActivity extends Activity {
 	private QuizHelper quizHelper;
 	private TextView quizPinyinView;
 
-	private int idOfAnswer;
+	private int idOfAnswer; //the Hanzi id of the answer
 	private boolean correctAnswerShown = false;
 	private boolean pinyinShown = false;
+	private int answerButtonIndex = -1; //the correct answer button array index
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +93,12 @@ public class QuizActivity extends Activity {
 		editor.commit();
 	}
 
+	/**
+	 * Initialization and display of the quiz in the UI. This method is 
+	 * only called at the start of the activity. 
+	 * @param quizWordList the generated list of words included in the quiz
+	 * @param indexOfAnswer the index of the correct word in the quizWordList
+	 */
 	private void displayQuiz(List<QuizHanzi> quizWordList, int indexOfAnswer) {
 		OnHanziClickListener onHanziClickListener = new OnHanziClickListener();
 		quizWordView = (TextView) findViewById(R.id.quizWordView);
@@ -112,10 +118,17 @@ public class QuizActivity extends Activity {
 			defButton.setBackgroundResource(R.drawable.btn_recolored);
 			int id = quizWordList.get(i).getId();
 			defButton.setOnClickListener(new OnQuizAnswerListener(id));
+			if (id == idOfAnswer) {
+				answerButtonIndex = i;
+			}
 		}
 	}
 
+	/**
+	 * Resets the UI and displays a new quiz.
+	 */
 	private void resetQuiz() {
+		//TODO use generateQuiz() instead?
 		List<QuizHanzi> quizWordList = quizHelper.makeQuizList(false);
 		idOfAnswer = quizHelper.chooseCorrectAnswer(quizWordList);
 		
@@ -126,6 +139,7 @@ public class QuizActivity extends Activity {
 				break;
 			}
 		}
+		//end of repeated code
 		
 		quizWordView.setText(quizWordList.get(indexOfAnswer).getWord());
 		quizPinyinView.setText(quizWordList.get(indexOfAnswer).getPinyin());
@@ -137,6 +151,9 @@ public class QuizActivity extends Activity {
 			buttonArray[i].setBackgroundResource(R.drawable.btn_recolored);
 			int id = quizWordList.get(i).getId();
 			buttonArray[i].setOnClickListener(new OnQuizAnswerListener(id));
+			if (id == idOfAnswer) {
+				answerButtonIndex = i;
+			}
 		}
 		
 		updateCache(quizWordList);
@@ -151,26 +168,30 @@ public class QuizActivity extends Activity {
 		
 		public void onClick(View view) {
 			if (id == idOfAnswer) { //correct answer
-				new AsyncColorSwitcher((Button) view, Color.GREEN).execute((Object[])null);
+				new AsyncColorSwitcher((Button) view, null).execute((Object[])null);
 			} else { //wrong answer
-				new AsyncColorSwitcher((Button) view, Color.RED).execute((Object[])null);
-				//TODO color correct answer green when wrong answer is given
+				Button correctButton = buttonArray[answerButtonIndex];
+				Button incorrectButton = (Button) view;
+				new AsyncColorSwitcher(correctButton, incorrectButton).execute((Object[])null);
 			}
 		}
 	}
 	
 	private class AsyncColorSwitcher extends AsyncTask<Object,Integer,Boolean> {
-		private final Button button;
-		private final int color;
-
-		public AsyncColorSwitcher(Button view, int color) {
-			this.button = view;
-			this.color = color;
+		private final Button correctButton;
+		private final Button incorrectButton;
+		
+		public AsyncColorSwitcher(Button correctButton, Button incorrectButton) {
+			this.correctButton = correctButton;
+			this.incorrectButton = incorrectButton;
 		}
 		
 		@Override
 		protected void onPreExecute() {
-			button.setBackgroundColor(color);
+			correctButton.setBackgroundColor(Color.GREEN);
+			if (incorrectButton != null) {
+				incorrectButton.setBackgroundColor(Color.RED);
+			}
 		}
 		
 		@Override

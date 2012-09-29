@@ -14,7 +14,6 @@ import android.util.Log;
 
 public class SoundManager {
 	protected static final String LOG_TAG = "SoundManager";
-	private static final String FILEPATH = "hsk1_sounds/";
 
 	//SoundPool playback constants
 	private static final int STREAM_ERROR = 0;
@@ -25,6 +24,7 @@ public class SoundManager {
 	private static final float LEFT_VOLUME = 1f;
 
 	private SoundPool soundPool;
+	private String filePath = "hsk1_sounds/";
 
 	/** This hashmap maps soundfiles to soundId's. */
 	private HashMap<String, Integer> soundMap;
@@ -51,6 +51,11 @@ public class SoundManager {
 		soundMap = new HashMap<String, Integer>();
 	}
 	
+	public SoundManager(AssetManager assetManager, String filePath) {
+		this(assetManager);
+		this.filePath = filePath;
+	}
+	
 	public void playSoundFile(String filename) {
 		try {
 			int soundID = 0;
@@ -64,7 +69,7 @@ public class SoundManager {
 					throw new Exception("Playback error for file " + 
 						filename + " with soundId " + soundID);
 				}
-				Log.d(LOG_TAG, "Played file: " + FILEPATH + filename);
+				Log.d(LOG_TAG, "Played file: " + filePath + filename);
 			} catch (NullPointerException e) {
 				soundID = loadSound(filename);
 			}
@@ -76,7 +81,7 @@ public class SoundManager {
 	private int loadSound(String filename) {
 		AssetFileDescriptor afd;
 		try {
-			afd = assetManager.openFd(FILEPATH  + filename);
+			afd = assetManager.openFd(filePath  + filename);
 			int soundId = soundPool.load(afd, PRIORITY);
 			if (soundId != 0) {
 				soundMap.put(filename, soundId);
