@@ -2,8 +2,10 @@ package edu.openhsk;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
@@ -18,13 +20,19 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import edu.openhsk.data.QuizHanzi;
+import edu.openhsk.utils.AsyncSoundPlayer;
+import edu.openhsk.utils.CharacterDAO;
+import edu.openhsk.utils.DatabaseHelper;
 import edu.openhsk.utils.QuizHelper;
+import edu.openhsk.utils.SoundManager;
 
 public class QuizActivity extends Activity {
 	public static final String PREFS_NAME = "edu.openhsk.quiz.prefs";
 	public static final String IS_CACHED = "isCached";
 	private static final String ID_OF_ANSWER = "idOfAnswer";
 	private static final String LOG_TAG = "QuizActivity";
+	private static final String PINYIN_SHOWN = "pinyinShown";
+	private static final String CORRECT_ANSWER_SHOWN = "correctAnswerShown";
 
 	private final static int idArray[] = new int[] {R.id.defView0, R.id.defView1, R.id.defView2, R.id.defView3};
 	private TextView quizWordView;
@@ -32,9 +40,10 @@ public class QuizActivity extends Activity {
 	private QuizHelper quizHelper;
 	private TextView quizPinyinView;
 
+	private SoundManager soundManager;
 	private int idOfAnswer; //the Hanzi id of the answer
-	private boolean correctAnswerShown = false;
-	private boolean pinyinShown = false;
+	private boolean correctAnswerShown = true;
+	private boolean pinyinShown = true;
 	private int answerButtonIndex = -1; //the correct answer button array index
 
 	@Override
@@ -44,20 +53,22 @@ public class QuizActivity extends Activity {
 		
 		//generate new or recover cached quiz and answer
 		List<QuizHanzi> quizWordList = new ArrayList<QuizHanzi>(4);	
-		int indexOfAnswer = generateQuiz(quizWordList);
+		int indexOfAnswer = generateQuiz(quizWordList, checkCache());
+		
+		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_WORLD_READABLE);
+		pinyinShown = prefs.getBoolean(PINYIN_SHOWN, true);
+		correctAnswerShown = prefs.getBoolean(CORRECT_ANSWER_SHOWN, true);
 		
 		//display quiz
 		displayQuiz(quizWordList, indexOfAnswer);
+		
+		soundManager = new SoundManager(getAssets());
 	}
 
-	private int generateQuiz(List<QuizHanzi> quizWordList) {
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_WORLD_READABLE);
-		boolean isCached = settings.getBoolean(IS_CACHED, false);
-		idOfAnswer = settings.getInt(ID_OF_ANSWER, -1);
-		Log.d(LOG_TAG, "isCached: " + isCached + 
-				" idOfAnswer: " + idOfAnswer);
-		
-		quizHelper = new QuizHelper(this);
+	private int generateQuiz(List<QuizHanzi> quizWordList, boolean isCached) {
+		if (quizHelper == null) {
+				quizHelper = new QuizHelper(this);
+		}
 		List<QuizHanzi> list = null;
 		if (isCached == true) { //cached quiz
 			list = quizHelper.makeQuizList(isCached);
@@ -83,6 +94,15 @@ public class QuizActivity extends Activity {
 		
 		return indexOfAnswer;
 	}
+	
+	private boolean checkCache() {
+		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_WORLD_READABLE);
+		boolean isCached = prefs.getBoolean(IS_CACHED, false);
+		idOfAnswer = prefs.getInt(ID_OF_ANSWER, -1);
+		Log.d(LOG_TAG, "isCached: " + isCached + 
+				" idOfAnswer: " + idOfAnswer);
+		return isCached;
+	}
 
 	private void updateCache(List<QuizHanzi> list) {
 		quizHelper.cacheQuiz(list);
@@ -100,7 +120,7 @@ public class QuizActivity extends Activity {
 	 * @param indexOfAnswer the index of the correct word in the quizWordList
 	 */
 	private void displayQuiz(List<QuizHanzi> quizWordList, int indexOfAnswer) {
-		OnHanziClickListener onHanziClickListener = new OnHanziClickListener();
+		PlaySoundClickListener onHanziClickListener = new PlaySoundClickListener(this);
 		quizWordView = (TextView) findViewById(R.id.quizWordView);
 		quizWordView.setText(quizWordList.get(indexOfAnswer).getWord());
 		quizWordView.setOnClickListener(onHanziClickListener);
@@ -128,18 +148,8 @@ public class QuizActivity extends Activity {
 	 * Resets the UI and displays a new quiz.
 	 */
 	private void resetQuiz() {
-		//TODO use generateQuiz() instead?
-		List<QuizHanzi> quizWordList = quizHelper.makeQuizList(false);
-		idOfAnswer = quizHelper.chooseCorrectAnswer(quizWordList);
-		
-		int indexOfAnswer = -1;
-		for (int i = 0; i < quizWordList.size(); i++) {
-			if (quizWordList.get(i).getId() == idOfAnswer) {
-				indexOfAnswer = i;
-				break;
-			}
-		}
-		//end of repeated code
+		List<QuizHanzi> quizWordList = new ArrayList<QuizHanzi>(4);
+		int indexOfAnswer = generateQuiz(quizWordList, false);
 		
 		quizWordView.setText(quizWordList.get(indexOfAnswer).getWord());
 		quizPinyinView.setText(quizWordList.get(indexOfAnswer).getPinyin());
@@ -155,8 +165,6 @@ public class QuizActivity extends Activity {
 				answerButtonIndex = i;
 			}
 		}
-		
-		updateCache(quizWordList);
 	}
 
 	private class OnQuizAnswerListener implements OnClickListener {
@@ -188,9 +196,13 @@ public class QuizActivity extends Activity {
 		
 		@Override
 		protected void onPreExecute() {
-			correctButton.setBackgroundColor(Color.GREEN);
-			if (incorrectButton != null) {
+			if (incorrectButton != null) { //wrong answer chosen
 				incorrectButton.setBackgroundColor(Color.RED);
+				if (correctAnswerShown) { //show correct answer only if set in preferences
+					correctButton.setBackgroundColor(Color.GREEN);
+				}
+			} else { //correct answer chosen
+				correctButton.setBackgroundColor(Color.GREEN);
 			}
 		}
 		
@@ -220,37 +232,57 @@ public class QuizActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
-	        case R.id.show_correct_answer:
-	            if (correctAnswerShown == true) {
+	        case R.id.show_correct_answer: {
+	        	SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_WORLD_WRITEABLE);
+	        	boolean isCorrectAnswerShown = prefs.getBoolean(CORRECT_ANSWER_SHOWN, true);
+	        	Editor editor = prefs.edit();
+	            if (isCorrectAnswerShown == true) {
 	            	correctAnswerShown = false;
+	            	editor.putBoolean(CORRECT_ANSWER_SHOWN, false);
 	            } else {
 	            	correctAnswerShown = true;
+	            	editor.putBoolean(CORRECT_ANSWER_SHOWN, true);
 	            }
+	            editor.commit();
 	            return true;
-	        case R.id.enable_pinyin:
-	        	//TODO lagra i sharedpref's
-	            if (pinyinShown) {
+	        }
+	        case R.id.enable_pinyin: {
+	        	SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_WORLD_WRITEABLE);
+	        	boolean isPinyinShown = prefs.getBoolean(PINYIN_SHOWN, true);
+	        	Editor editor = prefs.edit();
+	            if (isPinyinShown == true) {
 	            	pinyinShown = false;
+	            	editor.putBoolean(PINYIN_SHOWN, false);
 	            	quizPinyinView.setVisibility(View.GONE);
 	            } else {
 	            	pinyinShown = true;
+	            	editor.putBoolean(PINYIN_SHOWN, true);
 	            	quizPinyinView.setVisibility(View.VISIBLE);
 	            }
+	            editor.commit();
 	            return true;
+	        }
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
 	}
 	
-	private class OnHanziClickListener implements OnClickListener {
+	private class PlaySoundClickListener implements OnClickListener {
+		private final Context context;
+		
+		public PlaySoundClickListener(Context context) {
+			this.context = context;
+		}
+		
 		@Override
-		public void onClick(View v) { //TODO finish sound playback code
-			//get current quiz word
+		public void onClick(View v) {
+			TextView tv = (TextView) findViewById(R.id.quizWordView);
+			String word = tv.getText().toString();
 			
-			//get soundfilename
-			
-			//initialize asyncsoundplayer and play pronunciation
-			
+			String fileName = new CharacterDAO(
+					new DatabaseHelper(context))
+						.getFileNameByWord(word);
+			new AsyncSoundPlayer().execute(fileName, soundManager);
 		}
 	}
 }

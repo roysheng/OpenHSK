@@ -4,7 +4,7 @@ public class PinyinReplacer {
 
 	/**
 	 * Replacement lookup table for pinyin tone markers.
-	 * DO NOT CHANGE THE ORDER OF ROWS!
+	 * DO NOT CHANGE THE ORDER OF THE ROWS!
 	 */
 	private static final String[][] replacementTable = {
 		{"a1","ā"},

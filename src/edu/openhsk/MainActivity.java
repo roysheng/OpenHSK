@@ -67,12 +67,6 @@ public class MainActivity extends Activity {
         Button listButton = (Button) findViewById(R.id.button2);
         listButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				//reset saved list position
-				Editor edit = getSharedPreferences(CharacterListActivity.PREFS_NAME, MODE_WORLD_WRITEABLE).edit();
-				edit.putInt(CharacterListActivity.LIST_POS, 0);
-				edit.putInt(CharacterListActivity.LENGTH_FROM_TOP, 0);
-				edit.commit();
-				
 				Intent i = new Intent(MainActivity.this, CharacterListActivity.class);
 				startActivity(i);
 			}

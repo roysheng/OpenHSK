@@ -1,16 +1,10 @@
 package edu.openhsk;
 
-import edu.openhsk.R;
-import edu.openhsk.adapters.CharacterListViewBinder;
-import edu.openhsk.utils.DatabaseHelper;
-import edu.openhsk.utils.ListHelper;
-import edu.openhsk.utils.SoundManager;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +13,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import edu.openhsk.adapters.CharacterListViewBinder;
+import edu.openhsk.utils.AsyncSoundPlayer;
+import edu.openhsk.utils.CharacterDAO;
+import edu.openhsk.utils.DatabaseHelper;
+import edu.openhsk.utils.SoundManager;
 
 public class CharacterListActivity extends Activity {
 	public static final String LENGTH_FROM_TOP = "lengthFromTop";
@@ -27,8 +26,7 @@ public class CharacterListActivity extends Activity {
 	private static final String[] queryColumns = new String[] {"_id", "word", "pinyin", "definition", "islearned"};
 	public static final String PREFS_NAME = "edu.openhsk.list.prefs";
 	
-	private DatabaseHelper dbhelp;
-	private SQLiteDatabase db;
+	private DatabaseHelper dbh;
 	private ListView listView;
 	private CharacterListViewBinder viewBinder;
 	private SimpleCursorAdapter adapter;
@@ -40,18 +38,19 @@ public class CharacterListActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.charlist);
 		
-		dbhelp = new DatabaseHelper(this);
-		db = dbhelp.getReadableDatabase();
+		dbh = new DatabaseHelper(this);
+		SQLiteDatabase db = dbh.getReadableDatabase();
 		
 		listView = (ListView) findViewById(R.id.charListView);
 		cursor = db.query("t_hsk1", queryColumns, "", null, "", "", "");
 		refreshList(cursor);
 		
 		soundManager = new SoundManager(getAssets());
-		listView.setOnItemClickListener(new PlaySoundButton());
+		listView.setOnItemClickListener(new PlaySoundClickListener());
 		listView.setFastScrollEnabled(true);
 		
 		startManagingCursor(cursor);
+		db.close(); //bugfix?
 	}
 
 	private void refreshList(Cursor cursor) {
@@ -69,14 +68,15 @@ public class CharacterListActivity extends Activity {
 	
 	@Override
 	protected void onResume() {
-		dbhelp = new DatabaseHelper(this);
-		db = dbhelp.getReadableDatabase();
+		dbh = new DatabaseHelper(this);
+		SQLiteDatabase db = dbh.getReadableDatabase();
 		
 		listView = (ListView) findViewById(R.id.charListView);
 		cursor = db.query("t_hsk1", queryColumns, "", null, "", "", "");
 		refreshList(cursor);
 		
 		startManagingCursor(cursor);
+		db.close();
 		
 		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_WORLD_WRITEABLE);
 		int listPos = prefs.getInt(LIST_POS, 0);
@@ -105,31 +105,15 @@ public class CharacterListActivity extends Activity {
 		super.onPause();
 	}
 	
-	@Override
-	protected void onStop() {
-		db.close();
-		super.onStop();
-	}
-	
-	private class PlaySoundButton implements OnItemClickListener {
+	private class PlaySoundClickListener implements OnItemClickListener {
 		public void onItemClick(AdapterView<?> av, View view, int pos, long id) {
 			TextView tv = (TextView) view.findViewById(R.id.charListView);
 			String word = tv.getText().toString();
 			
 			//get sound filepath, play
-			String fileName = new ListHelper(CharacterListActivity.this).getFileNameByWord(word);
-			new AsyncSoundPlayer().execute(fileName);
-			startManagingCursor(cursor);
-		}
-	}
-	
-	private class AsyncSoundPlayer extends AsyncTask<Object,Integer,Boolean> {
-		@Override
-		protected Boolean doInBackground(Object... params) {
-			String fileName = (String) params[0];
-			Log.d(LOG_TAG, "Playing soundfile " + fileName);
-			soundManager.playSoundFile(fileName);
-			return true;
+			String fileName = new CharacterDAO(dbh)
+				.getFileNameByWord(word);
+			new AsyncSoundPlayer().execute(fileName, soundManager);
 		}
 	}
 }
